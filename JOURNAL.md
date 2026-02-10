@@ -1,6 +1,6 @@
 - Prompt (what we're asking of our assistant): Read @/prompts/1-web-api-specs.md and follow the instructions at the top of the file.
 - Tool (our AI assistant): Cline
-- Mode (plan, act, etc.): Plan
+- Mode (plan, act, etc.): Act
 - Context (clean, from previous, etc.): Clean
 - Model (LLM model and version): kat-coder-pro
 - Input (file added to the prompt): prompts/1-web-api-specs.md
@@ -11,7 +11,7 @@
 ________
 
 - Prompt: Read @/prompts/2-web-api-prompt.md and follow the instructions at the top of the file.
-- Mode: Plan
+- Mode: Act
 - Context: Clean
 - Input: prompts/2-web-api-specs.md
 - Output: prompts/3-web-api-plan.md
