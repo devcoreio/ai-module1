@@ -1,0 +1,9 @@
+- Prompt (what we're asking of our assistant): Read @/prompts/1-web-api-specs.md and follow the instructions at the top of the file.
+- Tool (our AI assistant): Cline
+- Mode (plan, act, etc.): Plan
+- Context (clean, from previous, etc.): Clean
+- Model (LLM model and version): kat-coder-pro
+- Input (file added to the prompt): prompts/1-web-api-specs.md
+- Output (file that contains the response): prompts/2-web-api-prompt.md
+- Cost (total cost of the full run): 12.9K Tokens (FREE)
+- Reflections (narrative assessments of the response):  The AI created a prompt that looks to be a simple start point for designing an API. I only specified the lanugage and what purpose of the API should be and it created what look to be specific requirements and contstraints.
