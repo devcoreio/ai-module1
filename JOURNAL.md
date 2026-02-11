@@ -32,7 +32,7 @@ ________
 - Model: kat-coder-pro
 - Input: 3-web-api-plan.md
 - Output: config-service
-- Cost:
+- Cost: 103K Tokens
 - Reflections: 
 - - Created main.go -> once i checked it reviewed again and fixed an issue (not importing "fmt"). This seems like a fairly big oversight but glad it caught.
 - - After creating the the password lenght logic it's gone back an updated function call, then renamed it back to the previous name
