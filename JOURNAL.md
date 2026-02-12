@@ -68,7 +68,7 @@ ________
 - Model: anthropic/claude-3.7-sonnet
 - Input: prompts/4-web-api-enhancement
 - Output: config-service
-- Cost: 
+- Cost: 111.7K (2.03 usd)
 - Reflections:
 - - Failed integration tests - looks like it may have forgotten to update the tests...
-- 
+- - Forgot to implement updates for readme, .. I think il need to check on it more throughly before committing.
