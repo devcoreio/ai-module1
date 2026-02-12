@@ -36,12 +36,20 @@ type PasswordFeedback struct {
 	Suggestions []string `json:"suggestions"`
 }
 
+// BreachInfo represents data about password breaches
+type BreachInfo struct {
+	Found        bool   `json:"found"`
+	BreachCount  int    `json:"breach_count"`
+	LastBreached string `json:"last_breached,omitempty"`
+}
+
 // PasswordResponse represents the response body for password strength check
 type PasswordResponse struct {
-	Strength    PasswordStrength    `json:"strength"`
-	Score       int                 `json:"score"`
-	Feedback    PasswordFeedback    `json:"feedback"`
+	Strength     PasswordStrength    `json:"strength"`
+	Score        int                 `json:"score"`
+	Feedback     PasswordFeedback    `json:"feedback"`
 	Requirements PasswordRequirements `json:"requirements"`
+	BreachData   *BreachInfo         `json:"breach_data,omitempty"`
 }
 
 // PasswordStrengthChecker defines the interface for password strength checking

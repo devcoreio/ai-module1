@@ -19,6 +19,12 @@ type Config struct {
 	Password struct {
 		MaxLength int `mapstructure:"max_length"`
 	} `mapstructure:"password"`
+	Breach struct {
+		Enabled       bool   `mapstructure:"enabled"`
+		APIEndpoint   string `mapstructure:"api_endpoint"`
+		Timeout       int    `mapstructure:"timeout"`
+		CacheDuration int    `mapstructure:"cache_duration"`
+	} `mapstructure:"breach"`
 }
 
 // Load loads the configuration from environment variables and default values
@@ -28,6 +34,10 @@ func Load() (*Config, error) {
 	viper.SetDefault("server.env", "development")
 	viper.SetDefault("logging.level", "info")
 	viper.SetDefault("password.max_length", 128)
+	viper.SetDefault("breach.enabled", true)
+	viper.SetDefault("breach.api_endpoint", "https://api.pwnedpasswords.com/range")
+	viper.SetDefault("breach.timeout", 10)
+	viper.SetDefault("breach.cache_duration", 60)
 
 	// Set environment variable prefix
 	viper.SetEnvPrefix("CONFIG_SERVICE")

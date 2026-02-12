@@ -11,7 +11,7 @@ import (
 )
 
 // PasswordCheckHandler handles the password strength check endpoint
-func PasswordCheckHandler(passwordService *services.PasswordService) gin.HandlerFunc {
+func PasswordCheckHandler(passwordService *services.PasswordService, breachService *services.BreachService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request models.PasswordRequest
 		
@@ -34,13 +34,17 @@ func PasswordCheckHandler(passwordService *services.PasswordService) gin.Handler
 			return
 		}
 
+		// Check for breaches if breach service is provided
+		if breachService != nil {
+			breachInfo, breachErr := breachService.CheckPasswordBreach(request.Password)
+			if breachErr == nil {
+				// Add breach information to response
+				AddBreachInfoToPasswordResponse(response, breachInfo)
+			}
+		}
+
 		// Return success response
-		c.JSON(http.StatusOK, gin.H{
-			"strength":     response.Strength,
-			"score":        response.Score,
-			"feedback":     response.Feedback,
-			"requirements": response.Requirements,
-		})
+		c.JSON(http.StatusOK, response)
 	}
 }
 

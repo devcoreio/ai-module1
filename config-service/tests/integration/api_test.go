@@ -25,6 +25,13 @@ func setupTestRouter() *gin.Engine {
 
 	// Initialize services
 	passwordService := services.NewPasswordService(logger)
+	
+	// Initialize breach service with disabled settings for tests
+	// Using nil for breach service would cause issues in tests
+	breachService := services.NewBreachService(
+		logger,
+		services.WithEnabled(false), // Disable breach detection for tests
+	)
 
 	// Create router
 	r := gin.Default()
@@ -37,7 +44,10 @@ func setupTestRouter() *gin.Engine {
 	r.GET("/api/v1/health", handlers.HealthCheckHandler)
 
 	// Password strength check endpoint
-	r.POST("/api/v1/password/check", handlers.PasswordCheckHandler(passwordService))
+	r.POST("/api/v1/password/check", handlers.PasswordCheckHandler(passwordService, breachService))
+	
+	// Breach check endpoint
+	r.POST("/api/v1/password/breach-check", handlers.BreachCheckHandler(breachService))
 
 	return r
 }
@@ -221,6 +231,50 @@ func TestPasswordCheckHandler_InvalidPassword(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.Contains(t, response, "error")
+		})
+	}
+}
+
+func TestBreachCheckHandler(t *testing.T) {
+	router := setupTestRouter()
+
+	testCases := []struct {
+		name     string
+		password string
+	}{
+		{
+			name:     "valid password",
+			password: "MyTestPassword123!",
+		},
+		{
+			name:     "complex password",
+			password: "C0mpl3x!P@ssw0rd",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			requestBody := models.PasswordRequest{
+				Password: tc.password,
+			}
+
+			jsonBody, err := json.Marshal(requestBody)
+			require.NoError(t, err)
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("POST", "/api/v1/password/breach-check", bytes.NewBuffer(jsonBody))
+			req.Header.Set("Content-Type", "application/json")
+
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusOK, w.Code)
+
+			var response models.BreachInfo
+			err = json.Unmarshal(w.Body.Bytes(), &response)
+			require.NoError(t, err)
+
+			// Since we disabled breach detection for tests, Found should always be false
+			assert.False(t, response.Found)
 		})
 	}
 }

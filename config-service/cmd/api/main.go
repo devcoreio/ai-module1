@@ -27,6 +27,15 @@ func main() {
 
 	// Initialize services
 	passwordService := services.NewPasswordService(logger)
+	
+	// Initialize breach service with configuration
+	breachService := services.NewBreachService(
+		logger,
+		services.WithEnabled(cfg.Breach.Enabled),
+		services.WithAPIEndpoint(cfg.Breach.APIEndpoint),
+		services.WithTimeout(cfg.Breach.Timeout),
+		services.WithCacheDuration(cfg.Breach.CacheDuration),
+	)
 
 	// Set Gin mode
 	if cfg.Server.Env == "production" {
@@ -45,8 +54,11 @@ func main() {
 	// Health check endpoint
 	r.GET("/api/v1/health", handlers.HealthCheckHandler)
 
-	// Password strength check endpoint
-	r.POST("/api/v1/password/check", handlers.PasswordCheckHandler(passwordService))
+	// Password strength check endpoint (now with breach detection)
+	r.POST("/api/v1/password/check", handlers.PasswordCheckHandler(passwordService, breachService))
+	
+	// Password breach check endpoint
+	r.POST("/api/v1/password/breach-check", handlers.BreachCheckHandler(breachService))
 
 	// Start server
 	logger.Infof("Starting server on port %d", cfg.Server.Port)

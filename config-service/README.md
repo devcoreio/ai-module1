@@ -6,6 +6,7 @@ A high-performance Go-based microservice for password strength checking and vali
 
 - **Password Strength Analysis**: Comprehensive password strength checking with detailed scoring
 - **Security Recommendations**: Actionable feedback for improving password security
+- **Breach Detection**: Check if passwords have been exposed in known data breaches
 - **Configurable Policies**: Flexible password policy configuration via environment variables
 - **RESTful API**: Clean, well-documented REST API with proper error handling
 - **Production Ready**: Docker support, health checks, and comprehensive logging
@@ -91,9 +92,35 @@ Content-Type: application/json
     "no_common_patterns": true,
     "no_sequential_chars": true,
     "no_repeated_chars": true
+  },
+  "breach_data": {
+    "found": false,
+    "breach_count": 0,
+    "last_breached": ""
   }
 }
 ```
+
+### Password Breach Check
+```http
+POST /api/v1/password/breach-check
+Content-Type: application/json
+
+{
+  "password": "your-password-here"
+}
+```
+
+**Response:**
+```json
+{
+  "found": true,
+  "breach_count": 34567,
+  "last_breached": "2023-01-15"
+}
+```
+
+This endpoint checks if a password has been exposed in known data breaches using the HaveIBeenPwned API with k-anonymity for security (only the first 5 characters of the password hash are sent to the API).
 
 ## Configuration
 
@@ -116,6 +143,12 @@ The service can be configured using environment variables:
 - `LOG_LEVEL`: Log level (debug, info, warn, error)
 - `LOG_FORMAT`: Log format (json, text)
 - `LOG_OUTPUT`: Log output (stdout, stderr, file)
+
+### Breach Detection
+- `BREACH_ENABLED`: Enable or disable breach detection (default: true)
+- `BREACH_API_ENDPOINT`: HaveIBeenPwned API endpoint (default: https://api.pwnedpasswords.com/range)
+- `BREACH_TIMEOUT`: Timeout in seconds for API requests (default: 10)
+- `BREACH_CACHE_DURATION`: Cache duration in minutes for breach results (default: 60)
 
 ## Password Strength Criteria
 
@@ -263,6 +296,14 @@ For support and questions:
 - Review the test files for usage examples
 
 ## Changelog
+
+### v1.1.0
+- Added password breach detection via HaveIBeenPwned API
+- Implemented k-anonymity security model for breach detection
+- Added caching for breach detection results
+- Enhanced existing password check endpoint to include breach data
+- Added new dedicated breach check endpoint
+- Updated documentation and tests
 
 ### v1.0.0
 - Initial release
