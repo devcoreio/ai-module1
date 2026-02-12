@@ -43,3 +43,18 @@ ________
 - - It was testing that things work and still doesn't have a gitignore file..
 - - - Once it was all finished it didnt create a gitignore -- do i need a rule around this? 
 - - Found issues with non exported functions (capitilize the func). this seems like a simple thing to make sure is a rule?
+
+
+_______
+
+- Prompt: Read all the files contained within the config-service folder, then suggest various improvements that could make the API more useful for users. Provide me with several options and give me an option to choose one. Then create a prompt that will be an effective plan for ensuring implemented correctly and efficiently and record this in @/prompts/4-web-api-enhancement
+- Mode: Plan
+- Context: Clean
+- Model:  anthropic/claude-3.7-sonnet
+- Input: config-service files
+- Output: prompts/4-web-api-enhancement
+- Cost: 33.1K Tokens (.40 usd)
+- Reflections:
+- - It found that the specific api and has detailed the model - what hash to provide etc. cool!
+- - I feel like I would want to spend more time understanding its plan so i can more effectively judge later implementation steps.
+- - It mentioned a TTL Cache for the breach results to reduce API calls - not sure that this came through in the final prompt.

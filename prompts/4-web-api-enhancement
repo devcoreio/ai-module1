@@ -1,0 +1,144 @@
+# Password Configuration Service Enhancement: Breach Detection Integration
+
+## Context
+You are enhancing a Go-based password configuration service API. The current API provides password strength checking functionality, but lacks the ability to check if passwords have been compromised in previous data breaches. Your task is to implement a "Breach Detection" feature by integrating with the HaveIBeenPwned (HIBP) API.
+
+## Current Codebase Structure
+- The service is built with Go and uses the Gin framework
+- Main API entry point: `cmd/api/main.go`
+- Password handling: 
+  - `internal/handlers/password_handler.go`
+  - `internal/services/password_service.go`
+  - `internal/services/strength_checker.go`
+- Data models: `internal/models/password.go`
+- Configuration: `internal/config/config.go`
+
+## Feature Requirements
+1. Implement a new endpoint: `/api/v1/password/breach-check` that:
+   - Accepts a password in the request body
+   - Returns information about whether the password appears in known breaches
+   - Includes breach count and relevant metadata when available
+
+2. Enhance the existing `/api/v1/password/check` endpoint to include breach information in its response.
+
+3. Create necessary data models to represent breach detection results:
+   ```go
+   type BreachInfo struct {
+     Found        bool   `json:"found"`
+     BreachCount  int    `json:"breach_count"`
+     LastBreached string `json:"last_breached,omitempty"`
+   }
+   ```
+
+4. Add breach information to the main `PasswordResponse` model
+
+5. Implement a `BreachService` that:
+   - Hashes passwords using SHA-1 (required for HIBP API)
+   - Uses the k-anonymity model for secure API calls (sending only first 5 chars of hash)
+   - Makes HTTP requests to the HIBP API
+   - Parses and processes the response
+
+6. Add appropriate configuration options via environment variables:
+   - HIBP API endpoint
+   - Enable/disable breach detection
+   - Cache duration for breach check results
+   - Timeout settings
+
+7. Implement caching to reduce API calls and improve performance
+
+8. Add comprehensive error handling, including:
+   - HIBP API unavailability
+   - Rate limiting handling
+   - Graceful degradation when the service is unavailable
+
+9. Update tests to cover the new functionality:
+   - Unit tests for the breach service
+   - Integration tests with mocked HIBP responses
+   - End-to-end API tests
+
+## Technical Implementation Guidelines
+1. Use the HIBP password range API: `https://api.pwnedpasswords.com/range/{first-5-hash-chars}`
+
+2. Implement the k-anonymity pattern:
+   - Hash the password with SHA-1
+   - Send only the first 5 characters of the hash to the API
+   - Compare the remainder of the hash locally against the response
+
+3. Security considerations:
+   - Never log raw passwords
+   - Don't store passwords or their full hashes
+   - Implement rate limiting to prevent abuse
+   - Use secure TLS for all external API calls
+
+4. Follow the existing project patterns and coding standards
+   - Match existing error handling patterns
+   - Follow the established service/handler architecture
+   - Use dependency injection consistently
+
+5. Ensure efficient resource usage:
+   - Implement connection pooling for HTTP clients
+   - Add reasonable timeouts for external API calls
+   - Use efficient data processing techniques
+
+## Example API Interactions
+
+1. Request to new endpoint:
+```http
+POST /api/v1/password/breach-check
+Content-Type: application/json
+
+{
+  "password": "Password123"
+}
+```
+
+2. Response from breach check:
+```json
+{
+  "found": true,
+  "breach_count": 34567,
+  "last_breached": "2021-06-15"
+}
+```
+
+3. Enhanced response from existing endpoint:
+```json
+{
+  "strength": "MEDIUM",
+  "score": 48,
+  "feedback": {
+    "warnings": ["Password has appeared in data breaches"],
+    "suggestions": ["Choose a password that hasn't been compromised"]
+  },
+  "requirements": {
+    "length": true,
+    "uppercase": true,
+    "lowercase": true,
+    "numbers": true,
+    "special_chars": false
+  },
+  "breach_data": {
+    "found": true,
+    "breach_count": 34567,
+    "last_breached": "2021-06-15"
+  }
+}
+```
+
+## Testing Requirements
+1. Test the feature with known breached passwords
+2. Test edge cases (API failures, timeouts, etc.)
+3. Ensure performance remains acceptable with breach checking enabled
+4. Verify correct implementation of the k-anonymity model
+
+## Resources
+- HIBP API Documentation: https://haveibeenpwned.com/API/v3
+- K-Anonymity Model Explanation: https://www.troyhunt.com/enhancing-pwned-passwords/
+- SHA-1 in Go: `crypto/sha1` standard library
+- HTTP client in Go: `net/http` standard library
+
+## Deliverables
+1. Complete Go implementation of the breach detection feature
+2. Updated API documentation
+3. Comprehensive tests
+4. Configuration documentation for the new feature
