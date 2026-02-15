@@ -141,3 +141,19 @@ ________
 - Reflections:
 - - Paused on getting the backend runnning so i cancelled
 - - THis is more expensive than creating a .gitignore should be - mistake to give these 2 seperate tasks
+
+
+
+________
+
+
+ - Prompt: Please Compile and run the frontend (`@ui/`) and backend (`@config-service/`) locally so I can verify that the frontend is working
+- Tool: Cline
+- Mode: Act
+- Context: Clean
+- Model: Claude Sonnet 4
+- Input: @ui/ & @config-service
+- Output: local run instances
+- Costs: 19K tokens (0.2208 usd)
+- Reflections:
+- - Seems to have ran both front and backend - not sure that everything is working as it seems the inputbox on the frontend ui isn't working
