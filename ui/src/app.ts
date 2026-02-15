@@ -185,7 +185,7 @@ class PasswordAppComponent extends HTMLElement {
                         id="password-input"
                         placeholder="Enter your password..."
                         max-length="128"
-                        min-length="1"
+                        min-length="8"
                         autocomplete="new-password"
                     ></password-input>
                 </div>
