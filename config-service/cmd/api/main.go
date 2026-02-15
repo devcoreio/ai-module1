@@ -48,6 +48,7 @@ func main() {
 	r := gin.Default()
 
 	// Add middleware
+	r.Use(handlers.CORSMiddleware())
 	r.Use(handlers.LoggingMiddleware(logger))
 	r.Use(handlers.ErrorHandlingMiddleware(logger))
 
