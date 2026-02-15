@@ -121,7 +121,23 @@ ________
 - Context: Clean
 - Model: Claude Sonnet 4
 - Input: @ui/tests/unit/password-input.test.ts
-- Output: 
-- Costs: 
+- Output: @ui/tests/unit/password-input.test.ts
+- Costs: 24.4k (0.38usd)
 - Reflections:
-- - did not create a .gitignore file 
+- - seemed to resolve issue
+
+
+________
+
+
+ - Prompt: Please create a .gitignore file within `@ui/` folder and compile and run the front and backend locally so I can verify that the frontend is working
+- Tool: Cline
+- Mode: Act
+- Context: Clean
+- Model: Claude Sonnet 4
+- Input: @ui/
+- Output: .gitignore
+- Costs: 23.8K tokens (0.5638)
+- Reflections:
+- - Paused on getting the backend runnning so i cancelled
+- - THis is more expensive than creating a .gitignore should be - mistake to give these 2 seperate tasks
