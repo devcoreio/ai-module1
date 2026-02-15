@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password App Integration Tests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        
+        .test-result {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .demo-app {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Password Security Checker - Integration Tests</h1>
+    
+    <div class="demo-app">
+        <h2>Live Demo</h2>
+        <password-app></password-app>
+    </div>
+    
+    <div class="test-section">
+        <h3>Component Integration Tests</h3>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Manual Test Cases</h3>
+        <ul>
+            <li><strong>Test 1:</strong> Type "password" - should show weak strength and security warnings</li>
+            <li><strong>Test 2:</strong> Type "MySecurePassword123!" - should show strong strength</li>
+            <li><strong>Test 3:</strong> Test password visibility toggle</li>
+            <li><strong>Test 4:</strong> Test password tips collapse/expand</li>
+            <li><strong>Test 5:</strong> Test responsive design on mobile</li>
+        </ul>
+    </div>
+    
+    <script type="module">
+        // Import the main app
+        import '../../../src/app.js';
+        
+        // Simple test runner
+        class TestRunner {
+            constructor() {
+                this.results = [];
+                this.resultsContainer = document.getElementById('test-results');
+            }
+            
+            async runTests() {
+                console.log('🧪 Starting integration tests...');
+                
+                await this.testComponentRegistration();
+                await this.testAppInitialization();
+                await this.testComponentInteraction();
+                await this.testResponsiveDesign();
+                
+                this.displayResults();
+                console.log('✅ Integration tests completed');
+            }
+            
+            async testComponentRegistration() {
+                try {
+                    const components = ['password-input', 'strength-meter', 'breach-alert', 'tips-panel', 'password-app'];
+                    
+                    for (const componentName of components) {
+                        const isRegistered = customElements.get(componentName) !== undefined;
+                        this.addResult(`Component ${componentName} registered`, isRegistered);
+                    }
+                } catch (error) {
+                    this.addResult('Component registration test', false, error.message);
+                }
+            }
+            
+            async testAppInitialization() {
+                try {
+                    const app = document.querySelector('password-app');
+                    const hasComponents = app && 
+                                        app.shadowRoot && 
+                                        app.shadowRoot.querySelector('password-input') &&
+                                        app.shadowRoot.querySelector('strength-meter') &&
+                                        app.shadowRoot.querySelector('breach-alert') &&
+                                        app.shadowRoot.querySelector('tips-panel');
+                    
+                    this.addResult('App initializes with all components', !!hasComponents);
+                } catch (error) {
+                    this.addResult('App initialization test', false, error.message);
+                }
+            }
+            
+            async testComponentInteraction() {
+                try {
+                    const app = document.querySelector('password-app');
+                    const passwordInput = app?.shadowRoot?.querySelector('password-input');
+                    
+                    if (passwordInput) {
+                        // Test setting a value
+                        passwordInput.setValue('testPassword123');
+                        const value = passwordInput.getValue();
+                        this.addResult('Password input setValue/getValue works', value === 'testPassword123');
+                        
+                        // Test validation
+                        passwordInput.setAttribute('min-length', '8');
+                        const isValid = passwordInput.isValid();
+                        this.addResult('Password validation works', isValid === true);
+                    } else {
+                        this.addResult('Component interaction test', false, 'Could not find password input');
+                    }
+                } catch (error) {
+                    this.addResult('Component interaction test', false, error.message);
+                }
+            }
+            
+            async testResponsiveDesign() {
+                try {
+                    // Test mobile viewport
+                    const originalWidth = window.innerWidth;
+                    
+                    // Simulate mobile width
+                    Object.defineProperty(window, 'innerWidth', {
+                        configurable: true,
+                        value: 375
+                    });
+                    
+                    window.dispatchEvent(new Event('resize'));
+                    
+                    // Check if components are still visible
+                    const app = document.querySelector('password-app');
+                    const isVisible = app && window.getComputedStyle(app).display !== 'none';
+                    
+                    this.addResult('Responsive design works on mobile', !!isVisible);
+                    
+                    // Restore original width
+                    Object.defineProperty(window, 'innerWidth', {
+                        configurable: true,
+                        value: originalWidth
+                    });
+                    
+                } catch (error) {
+                    this.addResult('Responsive design test', false, error.message);
+                }
+            }
+            
+            addResult(testName, passed, error = null) {
+                this.results.push({ testName, passed, error });
+            }
+            
+            displayResults() {
+                this.resultsContainer.innerHTML = '';
+                
+                this.results.forEach(result => {
+                    const div = document.createElement('div');
+                    div.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+                    div.innerHTML = `
+                        <strong>${result.passed ? '✅' : '❌'} ${result.testName}</strong>
+                        ${result.error ? `<br><small>Error: ${result.error}</small>` : ''}
+                    `;
+                    this.resultsContainer.appendChild(div);
+                });
+                
+                const summary = document.createElement('div');
+                const passed = this.results.filter(r => r.passed).length;
+                const total = this.results.length;
+                summary.className = `test-result ${passed === total ? 'test-pass' : 'test-fail'}`;
+                summary.innerHTML = `<strong>Summary: ${passed}/${total} tests passed</strong>`;
+                this.resultsContainer.appendChild(summary);
+            }
+        }
+        
+        // Run tests when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const testRunner = new TestRunner();
+            setTimeout(() => testRunner.runTests(), 1000); // Allow components to initialize
+        });
+        
+        // Add some demo interactions
+        setTimeout(() => {
+            const app = document.querySelector('password-app');
+            console.log('🔧 Demo app loaded:', app);
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -93,3 +93,20 @@ ______
 - - - custom animations?
 - - - preference on hosting deployment
 - - Keeps naming things "password configuration". This signals to me an incorrect perception on what im trying to create and only can get that from the naming confention of the 'config-service' - I might need to be considerate of this in the future.
+
+
+________
+
+
+ - Prompt: Read @prompts/6-web-user-ui-plan.md and follow the instructions at the top of the file.
+- Tool: Cline
+- Mode: Act
+- Context: Clean
+- Model: Claude Sonnet 4
+- Input: prompts/6-web-user-ui-plan.md
+- Output: ui/
+- Costs: $2.31
+- Reflections:
+- - Didn't have specific instructions at the top of the file and it mentioned it didnt see it. My fault.
+- - Had issues in the password-oinpout.test.ts that it didn't pick up before it was finished 
+- - Didn't test it before finishing - attempted to by the looks but stopped when python was not found
