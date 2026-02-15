@@ -72,3 +72,24 @@ ________
 - Reflections:
 - - Failed integration tests - looks like it may have forgotten to update the tests...
 - - Forgot to implement updates for readme, .. I think il need to check on it more throughly before committing.
+
+
+______
+
+
+- Prompt: Read @prompts/5-web-user-ui-prompt.md and follow the instructions at the top of the file.
+- Tool: Cline
+- Mode: Plan
+- Context: Clean
+- Model: Claude 3.7 Sonnet
+- Input: prompts/5-web-user-ui-prompt.md
+- Output: prompts/6-web-user-ui-plan.md
+- Cost: 30K tokens (.27 usd)
+- Reflections: 
+- - encouraged to ask questions and it did
+- - - Single page/multipage
+- - - specific color palate
+- - - specific features
+- - - custom animations?
+- - - preference on hosting deployment
+- - Keeps naming things "password configuration". This signals to me an incorrect perception on what im trying to create and only can get that from the naming confention of the 'config-service' - I might need to be considerate of this in the future.
