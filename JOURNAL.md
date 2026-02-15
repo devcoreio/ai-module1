@@ -205,3 +205,19 @@ ________
 - Costs: (unsure)
 - Reflections:
 - - This didn't fix it... 
+
+
+________
+
+
+- Prompt: In the "alert-message" class, is getting the message "Key: 'PasswordRequest.Password' Error:Field validation for 'Password' failed on the 'min' tag" - help me Identify the issue and  fix this.
+- Tool: Cline
+- Mode: Plan
+- Context: Clean
+- Model: Claude Sonnet 4
+- Input: 
+- Output: 
+- Costs: 
+- Reflections:
+- - It eventually fixed it after multiple prompts 
+- - Still has issue in same area posting "HTTP 501: Unsupported method ('POST')"

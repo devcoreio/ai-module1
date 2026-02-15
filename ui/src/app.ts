@@ -297,15 +297,25 @@ class PasswordAppComponent extends HTMLElement {
             return;
         }
 
-        if (!ApiUtils.isValidPassword(password)) {
-            this.showError('Invalid password format');
+        // Check if password meets minimum length for API calls
+        if (!ApiUtils.meetsMinimumLength(password)) {
+            // Hide API-dependent components for short passwords
+            if (this.breachAlert) {
+                this.breachAlert.hide();
+            }
+            // Don't make API calls for passwords shorter than 8 characters
             return;
         }
 
-        // Trigger debounced checks
+        if (!ApiUtils.isValidPassword(password)) {
+            this.showError('Password must be 8-128 characters long with no leading/trailing spaces');
+            return;
+        }
+
+        // Trigger debounced checks only for valid length passwords
         this.debouncedPasswordCheck(password);
         
-        if (DEFAULT_CONFIG.enableBreachCheck && password.length >= 4) {
+        if (DEFAULT_CONFIG.enableBreachCheck) {
             this.debouncedBreachCheck(password);
         }
     }

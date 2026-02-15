@@ -148,7 +148,7 @@ export class ApiClient {
         }
 
         return {
-            message,
+            message: this.translateErrorMessage(message), // Apply error translation here
             status: response.status,
             timestamp: new Date().toISOString(),
             endpoint
@@ -163,13 +163,17 @@ export class ApiClient {
 
         if (error instanceof Error) {
             apiError = {
-                message: error.message,
+                message: this.translateErrorMessage(error.message),
                 status: 0, // Network error
                 timestamp: new Date().toISOString(),
                 endpoint
             };
         } else if (typeof error === 'object' && error !== null && 'status' in error) {
-            apiError = error as ApiError;
+            const originalError = error as ApiError;
+            apiError = {
+                ...originalError,
+                message: this.translateErrorMessage(originalError.message)
+            };
         } else {
             apiError = {
                 message: 'Unknown error occurred',
@@ -184,6 +188,48 @@ export class ApiClient {
             success: false,
             error: apiError
         };
+    }
+
+    /**
+     * Translate backend validation errors into user-friendly messages
+     */
+    private translateErrorMessage(message: string): string {
+        // Handle Go validation errors - more comprehensive pattern matching
+        if (message.includes("Key: 'PasswordRequest.Password' Error:Field validation for 'Password' failed on the 'min' tag") ||
+            message.includes("Field validation for 'Password' failed on the 'min' tag")) {
+            return 'Password must be at least 8 characters long';
+        }
+        
+        if (message.includes("Key: 'PasswordRequest.Password' Error:Field validation for 'Password' failed on the 'max' tag") ||
+            message.includes("Field validation for 'Password' failed on the 'max' tag")) {
+            return 'Password must not exceed 128 characters';
+        }
+        
+        if (message.includes("Key: 'PasswordRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag") ||
+            message.includes("Field validation for 'Password' failed on the 'required' tag")) {
+            return 'Password is required';
+        }
+
+        // Handle other common Go binding/validation errors
+        if (message.includes('binding failed') || message.includes('Invalid request format')) {
+            return 'Please enter a valid password';
+        }
+
+        if (message.includes('validation failed')) {
+            return 'Password does not meet requirements';
+        }
+
+        // Handle network and timeout errors
+        if (message.includes('Request timeout')) {
+            return 'Request timed out. Please try again';
+        }
+
+        if (message.includes('fetch') || message.includes('network')) {
+            return 'Network error. Please check your connection and try again';
+        }
+
+        // Return original message if no translation needed
+        return message;
     }
 
     /**
@@ -299,13 +345,20 @@ export class ApiUtils {
     }
 
     /**
-     * Validate password before API call
+     * Validate password before API call - matches backend requirements exactly
      */
     static isValidPassword(password: string): boolean {
         return typeof password === 'string' && 
-               password.length > 0 && 
+               password.length >= 8 && // Match backend min requirement
                password.length <= 128 &&
                password.trim() === password; // No leading/trailing whitespace
+    }
+
+    /**
+     * Check if password meets minimum length for API calls
+     */
+    static meetsMinimumLength(password: string): boolean {
+        return typeof password === 'string' && password.length >= 8;
     }
 
     /**

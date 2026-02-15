@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Password Validation Error Handling Test</h1>
+    
+    <div class="test-section">
+        <h2>API Error Translation Test</h2>
+        <p>Testing if raw Go validation errors are properly translated to user-friendly messages.</p>
+        
+        <button onclick="testRawGoError()">Test Raw Go Error Translation</button>
+        <button onclick="testShortPasswordValidation()">Test Short Password Validation</button>
+        <button onclick="testClientSideValidation()">Test Client-Side Validation</button>
+        
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Password App Component Test</h2>
+        <p>Test the actual password component with various inputs:</p>
+        
+        <!-- Load the actual components -->
+        <script type="module" src="./src/app.js"></script>
+        <password-app></password-app>
+    </div>
+
+    <script type="module">
+        import { ApiClient, ApiUtils } from './src/services/api.js';
+
+        const apiClient = new ApiClient({
+            baseUrl: 'http://localhost:8080/api'
+        });
+
+        window.testRawGoError = function() {
+            // Test the translateErrorMessage method by simulating the exact Go error
+            const rawGoError = "Key: 'PasswordRequest.Password' Error:Field validation for 'Password' failed on the 'min' tag";
+            
+            // Create a mock API response with the raw error
+            const mockApiError = {
+                message: rawGoError,
+                status: 400,
+                timestamp: new Date().toISOString(),
+                endpoint: '/password/check'
+            };
+
+            // The error should be translated by the API client's error handling
+            const translatedMessage = apiClient.constructor.prototype.translateErrorMessage?.call(
+                { translateErrorMessage: ApiClient.prototype.translateErrorMessage },
+                rawGoError
+            ) || 'Method not accessible';
+
+            displayTestResult(
+                'Raw Go Error Translation',
+                translatedMessage === 'Password must be at least 8 characters long',
+                `Expected: "Password must be at least 8 characters long"<br>Got: "${translatedMessage}"`
+            );
+        };
+
+        window.testShortPasswordValidation = function() {
+            const shortPassword = "abc123";
+            const isValid = ApiUtils.meetsMinimumLength(shortPassword);
+            
+            displayTestResult(
+                'Short Password Validation',
+                !isValid,
+                `Password "${shortPassword}" should be invalid (less than 8 chars). Valid: ${isValid}`
+            );
+        };
+
+        window.testClientSideValidation = function() {
+            const validPassword = "MyStr0ng!Password";
+            const invalidPassword = "weak";
+            
+            const validResult = ApiUtils.isValidPassword(validPassword);
+            const invalidResult = ApiUtils.isValidPassword(invalidPassword);
+            
+            displayTestResult(
+                'Client-Side Validation',
+                validResult && !invalidResult,
+                `Valid password "${validPassword}": ${validResult}<br>Invalid password "${invalidPassword}": ${invalidResult}`
+            );
+        };
+
+        function displayTestResult(testName, passed, details) {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${passed ? 'success' : 'error'}`;
+            resultDiv.innerHTML = `
+                <strong>${testName}: ${passed ? 'PASSED' : 'FAILED'}</strong><br>
+                ${details}
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Running automatic tests...');
+                testRawGoError();
+                testShortPasswordValidation();
+                testClientSideValidation();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

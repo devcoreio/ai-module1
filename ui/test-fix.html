@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Error Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .error-display {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+        .success-display {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Password Error Translation Fix Test</h1>
+        
+        <div class="test-section">
+            <h2>Manual Test - Enter a Short Password</h2>
+            <p>Enter a password with less than 8 characters to test the error handling:</p>
+            
+            <input type="password" id="test-password" placeholder="Enter a short password (e.g., 'abc')">
+            <button onclick="testShortPassword()">Test Password</button>
+            
+            <div id="result-display"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Automatic API Test</h2>
+            <button onclick="testApiDirectly()">Test API Error Translation</button>
+            <div id="api-test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Password Component Test</h2>
+            <p>Test with the actual password component:</p>
+            <script type="module" src="./src/app.js"></script>
+            <password-app></password-app>
+        </div>
+    </div>
+
+    <script type="module">
+        import { apiClient } from './src/services/api.js';
+
+        window.testShortPassword = async function() {
+            const password = document.getElementById('test-password').value;
+            const resultDiv = document.getElementById('result-display');
+            
+            if (!password) {
+                resultDiv.innerHTML = '<div class="error-display">Please enter a password first</div>';
+                return;
+            }
+
+            try {
+                const response = await apiClient.checkPasswordStrength(password);
+                
+                if (response.success) {
+                    resultDiv.innerHTML = '<div class="success-display">Password check successful! This should only happen with valid passwords.</div>';
+                } else {
+                    const errorMessage = response.error?.message || 'Unknown error';
+                    resultDiv.innerHTML = `
+                        <div class="error-display">
+                            <strong>Error Message:</strong> ${errorMessage}<br>
+                            <small>This should now show a user-friendly message instead of raw Go errors</small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error-display">Exception: ${error.message}</div>`;
+            }
+        };
+
+        window.testApiDirectly = async function() {
+            const resultDiv = document.getElementById('api-test-result');
+            
+            try {
+                // Test with a password that's too short
+                const response = await fetch('http://localhost:8080/api/v1/password/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: 'abc' })
+                });
+
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="error-display">
+                        <strong>Raw API Response:</strong><br>
+                        Status: ${response.status}<br>
+                        Error: ${data.error}<br>
+                        Message: ${data.message}<br><br>
+                        <em>The frontend should translate this raw message automatically.</em>
+                    </div>
+                `;
+
+                // Now test how our API client handles it
+                const clientResponse = await apiClient.checkPasswordStrength('abc');
+                
+                resultDiv.innerHTML += `
+                    <div style="margin-top: 15px;" class="${clientResponse.success ? 'success-display' : 'error-display'}">
+                        <strong>API Client Response:</strong><br>
+                        Success: ${clientResponse.success}<br>
+                        ${clientResponse.success ? 
+                            'Data: ' + JSON.stringify(clientResponse.data) : 
+                            'Translated Error: ' + (clientResponse.error?.message || 'No error message')
+                        }
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error-display">Test failed: ${error.message}</div>`;
+            }
+        };
+
+        // Auto-run the API test when page loads
+        setTimeout(() => {
+            console.log('Running automatic API test...');
+            testApiDirectly();
+        }, 500);
+    </script>
+</body>
+</html>
