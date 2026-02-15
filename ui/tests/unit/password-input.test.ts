@@ -3,17 +3,35 @@
 
 import { PasswordInputComponent } from '../../src/components/password-input/password-input.js';
 
+// Mock functions for test setup/teardown
+function beforeEach(fn: () => void) {
+    fn();
+}
+
+function afterEach(fn: () => void) {
+    fn();
+}
+
 // Mock test framework functions for demonstration
 function describe(name: string, fn: () => void) {
     console.log(`\n--- ${name} ---`);
     fn();
 }
 
-function it(name: string, fn: () => void) {
+function it(name: string, fn: (() => void) | ((done: () => void) => void)) {
     try {
-        fn();
-        console.log(`✅ ${name}`);
-    } catch (error) {
+        // Handle async tests with done callback
+        if (fn.length > 0) {
+            // This is an async test with done callback
+            (fn as (done: () => void) => void)(() => {
+                console.log(`✅ ${name}`);
+            });
+        } else {
+            // Synchronous test
+            (fn as () => void)();
+            console.log(`✅ ${name}`);
+        }
+    } catch (error: any) {
         console.log(`❌ ${name}: ${error.message}`);
     }
 }
@@ -108,8 +126,9 @@ describe('PasswordInputComponent', () => {
 
     describe('Event Handling', () => {
         it('should dispatch password-change events', (done) => {
-            component.addEventListener('password-change', (event: CustomEvent) => {
-                expect(event.detail.password).toBe('newPassword');
+            component.addEventListener('password-change', (event: Event) => {
+                const customEvent = event as CustomEvent;
+                expect(customEvent.detail.password).toBe('newPassword');
                 done();
             });
 
@@ -135,15 +154,6 @@ describe('PasswordInputComponent', () => {
         });
     });
 });
-
-// Mock functions for test setup/teardown
-function beforeEach(fn: () => void) {
-    fn();
-}
-
-function afterEach(fn: () => void) {
-    fn();
-}
 
 // Export for potential test runner
 export { describe, it, expect, beforeEach, afterEach };

@@ -110,3 +110,18 @@ ________
 - - Didn't have specific instructions at the top of the file and it mentioned it didnt see it. My fault.
 - - Had issues in the password-oinpout.test.ts that it didn't pick up before it was finished 
 - - Didn't test it before finishing - attempted to by the looks but stopped when python was not found
+
+
+________
+
+
+ - Prompt: There seems to be an issue on `@ui/tests/unit/password-input.test.ts` - are you able to identify and fix this issue?
+- Tool: Cline
+- Mode: Act
+- Context: Clean
+- Model: Claude Sonnet 4
+- Input: @ui/tests/unit/password-input.test.ts
+- Output: 
+- Costs: 
+- Reflections:
+- - did not create a .gitignore file 
