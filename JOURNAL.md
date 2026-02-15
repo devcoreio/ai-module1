@@ -157,3 +157,19 @@ ________
 - Costs: 19K tokens (0.2208 usd)
 - Reflections:
 - - Seems to have ran both front and backend - not sure that everything is working as it seems the inputbox on the frontend ui isn't working
+
+
+________
+
+
+- Prompt: There seems to be an issue with inputing the password on the frontend ui `@ui/`. Please help me identify the issue and fix it.
+- Tool: Cline
+- Mode: Act
+- Context: Clean
+- Model: Claude Sonnet 4
+- Input: @ui
+- Output: tsconfig.json
+- Costs: 45.9k ($0.8105)
+- Reflections:
+- - Not specific enough with the issue - should have given some clue (ie. "text input not working")
+- - Compiled the TS but still not working 

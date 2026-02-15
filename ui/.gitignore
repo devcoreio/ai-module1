@@ -9,7 +9,10 @@ dist/
 build/
 *.js
 *.js.map
-!src/**/*.js
+
+#ignore TS declaration files
+*.d.ts
+*.d.ts.map
 
 # IDE and editor files
 .vscode/
