@@ -228,7 +228,7 @@ export const BREACH_SEVERITY_COLORS: Record<BreachSeverity, string> = {
 
 export const DEFAULT_CONFIG: AppConfig = {
     api: {
-        baseUrl: '/api/v1',
+        baseUrl: 'http://localhost:8080/api/v1',
         timeout: 5000,
         retryAttempts: 3,
         retryDelay: 1000
